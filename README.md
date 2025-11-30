@@ -24,9 +24,9 @@ Functionality supported currently:
 For full API details see [thrift file](obs_thrift_server.thrift).
 
 ## Installation and usage
-Currently the only supported platform is Windows and 64-bit OBS. It's likely that it can be easily ported to other platforms.
+Currently the only supported platform is Windows and 64-bit OBS. The included PowerShell installer downloads the latest released scheduler build and Apache Tomcat automatically so you don't have to track versions manually.
 
-See detailed installation and usage instructions [here](docs/INSTALL.md).
+See detailed installation and usage instructions [here](docs/INSTALL.md), including how to run `install.ps1` and start Tomcat with `run.bat`.
 
 [Video walkthrough](https://www.youtube.com/watch?v=nvNznDg5yh4)
 

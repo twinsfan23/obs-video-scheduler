@@ -3,39 +3,38 @@
 - browser
 - 64-bit OBS (not in studio mode)
 - PowerShell with administrator rights
-- JDK/JRE & JRE_HOME environment variable (`JRE_HOME\bin\java.exe` or `JAVA_HOME\bin\java.exe` should exist)
-- ffmpeg available from command line / PATH 
+- JDK/JRE & JRE_HOME environment variable (`JRE_HOME\\bin\\java.exe` or `JAVA_HOME\\bin\\java.exe` should exist)
+- ffmpeg available from command line / PATH
 - appropriate installation of Microsoft Visual C++ Redistributable for Visual Studio, [download here](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads)
 
 ## Installation
-1) Download `install.ps1` and `obs-thrift-api.dll` from the latest plugin [release](../../../releases)
-2) Copy obs-thrift-api.dll into `<OBS home>\plugins` folder of your OBS installation ([instruction](https://obsproject.com/forum/threads/how-to-install-obs-plugins.4912))
-3) Place `install.ps1` script into an empty folder to install web interface tools into and run install.pd1 from windows powershell
-4) Open powershell as administrator and run `Set-ExecutionPolicy unrestricted` to adjust powershell security settings to run the script 
-5) Script will download and install Apache Tomcat and `obs-video-scheduler.zip`
-6) As a result, installation folder should contain `apache-tomcat-9.0.33`, `data`, `install.ps1` and `run.bat`
+1) Download `install.ps1` and `obs-thrift-api.dll` from the latest plugin [release](../../../releases).
+2) Copy obs-thrift-api.dll into `<OBS home>\\plugins` folder of your OBS installation ([instruction](https://obsproject.com/forum/threads/how-to-install-obs-plugins.4912)).
+3) Place `install.ps1` script into an empty folder to install web interface tools into and run `install.ps1` from Windows PowerShell.
+4) Open PowerShell as administrator and run `Set-ExecutionPolicy unrestricted` to adjust PowerShell security settings to run the script.
+5) The script automatically pulls the most recent `obs-video-scheduler.zip` release and Apache Tomcat 9.0.89, unpacks them, and wires the scheduler WAR into Tomcat.
+6) As a result, the installation folder should contain `apache-tomcat-9.0.89`, `data`, `install.ps1`, `ROOT.war`, and `run.bat`.
 
 Video walkthrough of the installation process: [youtube](https://www.youtube.com/watch?v=nvNznDg5yh4)
 
 ## Usage
-1) Run OBS
-2) Create or select a scene to add scheduled videos to
-3) Run ```run.bat``` from scheduler folder
-4) Open http://localhost:8080/ in browser
+1) Run OBS.
+2) Create or select a scene to add scheduled videos to.
+3) Run `run.bat` from the scheduler folder.
+4) Open http://localhost:8080/ in browser.
 5) Web interface should show “Connected to OBS” in the upper left corner.
 
 ![](UI.png)
 
-6) To schedule a video press ```schedule``` button to the left of video name in the lower left corner
-7) Drag-n-drop video in the timeline to adjust start time (only round number of seconds allowed)
-8) Double click on scheduled video to remove
-9) Move the slider above the timeline to adjust zoom
-10) Timeline has two timers available: global astronomic time (below timeline) and time from a given start time. To adjust start time use “New start time” and “Reschedule” button or click “Start now”
-11) http://localhost:8080/comm will show information about upcoming video 1 minute before the video start and during the video
+6) To schedule a video press `schedule` button to the left of video name in the lower left corner.
+7) Drag-n-drop video in the timeline to adjust start time (only round number of seconds allowed).
+8) Double click on scheduled video to remove.
+9) Move the slider above the timeline to adjust zoom.
+10) Timeline has two timers available: global astronomic time (below timeline) and time from a given start time. To adjust start time use “New start time” and “Reschedule” button or click “Start now”.
+11) http://localhost:8080/comm will show information about upcoming video 1 minute before the video start and during the video.
 
 ## Settings
-You can open settings on the “settings” link in upper left corner of web interface or directly on http://localhost:8080/settings.jsp; settings are stored in ```\data\config.json```
-
+You can open settings on the “settings” link in upper left corner of web interface or directly on http://localhost:8080/settings.jsp; settings are stored in `\\data\\config.json`.
 
 ### OBS
 | Property | Default value | Description |
@@ -66,4 +65,3 @@ You can open settings on the “settings” link in upper left corner of web int
 |-|-|-|
 | Sources to mute/unmute | *empty* | |
 | Disclaimer file name | *empty* | video within video directory on OBS host that will be used as intro and outro before and after each video (example: `intro.mp4`) |
-
