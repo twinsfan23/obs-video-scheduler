@@ -263,3 +263,59 @@ button.primary {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
 }
+
+.import-panel {
+  margin: 20px 0;
+}
+
+.import-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.dropzone {
+  border: 2px dashed var(--accent);
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(91, 192, 190, 0.08);
+  text-align: center;
+}
+
+.dropzone.active {
+  background: rgba(91, 192, 190, 0.16);
+}
+
+.dropzone input[type="file"] {
+  margin-top: 12px;
+}
+
+.url-import textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #223150;
+  background: #0f1729;
+  color: var(--text);
+  resize: vertical;
+}
+
+.import-results {
+  border-left: 1px solid #223150;
+  padding-left: 12px;
+  color: var(--text);
+}
+
+.import-results ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.import-results li {
+  margin-bottom: 6px;
+}
+
+.muted {
+  color: var(--muted);
+}
