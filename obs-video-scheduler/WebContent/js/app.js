@@ -9,6 +9,16 @@ let scheduleData = [];
 let items = [];
 let currentSelection = null;
 
+const TZ_OFFSET_MS = new Date().getTimezoneOffset() * 60000;
+
+function toServerScheduleTime(timestampMs) {
+  return timestampMs - TZ_OFFSET_MS;
+}
+
+function fromServerScheduleTime(timestampMs) {
+  return timestampMs + TZ_OFFSET_MS;
+}
+
 async function jsonFetch(url, options = {}) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -63,8 +73,8 @@ function syncCalendarEvents(schedule) {
     calendar.addEvent({
       id: entry._id,
       title: entry.name,
-      start: new Date(entry.start),
-      end: new Date(entry.stop),
+      start: new Date(fromServerScheduleTime(entry.start)),
+      end: new Date(fromServerScheduleTime(entry.stop)),
       allDay: false,
     });
   });
@@ -84,7 +94,13 @@ function renderTimeline(schedule) {
     return;
   }
 
-  const sorted = [...schedule].sort((a, b) => a.start - b.start);
+  const adjusted = schedule.map((entry) => ({
+    ...entry,
+    start: fromServerScheduleTime(entry.start),
+    stop: fromServerScheduleTime(entry.stop),
+  }));
+
+  const sorted = [...adjusted].sort((a, b) => a.start - b.start);
   const minStart = sorted[0].start;
   const maxStop = Math.max(...sorted.map((s) => s.stop));
   const span = Math.max(maxStop - minStart, 60 * 1000);
@@ -234,7 +250,8 @@ async function loadSchedule() {
 }
 
 async function add_event(uuid, start) {
-  const payload = start ? { uuid, start } : { uuid };
+  const payloadStart = typeof start === 'number' ? toServerScheduleTime(start) : undefined;
+  const payload = payloadStart !== undefined ? { uuid, start: payloadStart } : { uuid };
   const result = await jsonFetch('/api/schedule/add', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -261,10 +278,11 @@ async function remove_event(uuid) {
 }
 
 async function reschedule_event(uuid, new_start) {
+  const adjustedStart = toServerScheduleTime(new_start);
   const result = await jsonFetch('/api/schedule/reschedule', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uuid, start: new_start }),
+    body: JSON.stringify({ uuid, start: adjustedStart }),
   });
   if (result.schedule) {
     scheduleData = result.schedule;
