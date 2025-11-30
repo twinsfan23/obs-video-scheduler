@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.stream.JsonParser;
@@ -38,6 +39,17 @@ public class ScheduleList extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<String> files = DataProvider.getScheduleList();
+
+        if ("json".equalsIgnoreCase(request.getParameter("format"))) {
+            JsonArrayBuilder builder = Json.createArrayBuilder();
+            for (String file : files) {
+                builder.add(file);
+            }
+
+            response.setContentType("application/json");
+            response.getWriter().print(builder.build().toString());
+            return;
+        }
 
         Writer w = response.getWriter();
         w.append("<form> Load schedule ");

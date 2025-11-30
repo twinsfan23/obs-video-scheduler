@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -52,6 +55,11 @@ public class ItemList extends HttpServlet {
             list = new ArrayList<>(DataProvider.getActivitiesByName().values());
 
         Collections.sort(list);
+
+        if ("json".equalsIgnoreCase(request.getParameter("format"))) {
+            writeJsonResponse(response, list);
+            return;
+        }
 
         List<ScheduleEntry> sc = DataProvider.getSchedule();
         long contestStartTime = DataProvider.getContestStart();
@@ -133,6 +141,19 @@ public class ItemList extends HttpServlet {
             throws ServletException, IOException {
         // TODO Auto-generated method stub
         doGet(request, response);
+    }
+
+    private void writeJsonResponse(HttpServletResponse response, List<Item> items) throws IOException {
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+
+        for (Item item : items) {
+            JsonObjectBuilder objectBuilder = Json.createObjectBuilder().add("uuid", item.uuid).add("name", item.name)
+                    .add("duration", item.duration);
+            builder.add(objectBuilder.build());
+        }
+
+        response.setContentType("application/json");
+        response.getWriter().print(builder.build().toString());
     }
 
 }
