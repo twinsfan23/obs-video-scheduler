@@ -70,6 +70,32 @@
         </section>
     </main>
 
+    <section class="panel import-panel">
+        <div class="panel-header">
+            <h2>Upload & bulk import</h2>
+            <span class="hint">Drop files, paste URLs, or rescan the media directory.</span>
+        </div>
+        <div class="import-grid">
+            <div class="dropzone" id="media-dropzone">
+                <p><strong>Drag & drop</strong> media files here</p>
+                <p class="muted">They will be saved to the server directory and indexed automatically.</p>
+                <input type="file" id="media-file-input" multiple>
+            </div>
+            <div class="url-import">
+                <label for="media-urls">Paste URLs (one per line)</label>
+                <textarea id="media-urls" rows="4" placeholder="https://example.com/video.mp4"></textarea>
+                <div class="inline">
+                    <button type="button" id="import-urls">Import URLs</button>
+                    <button type="button" id="scan-library">Rescan library</button>
+                </div>
+            </div>
+            <div class="import-results">
+                <div id="import-summary" class="muted">Waiting for imports...</div>
+                <ul id="import-results"></ul>
+            </div>
+        </div>
+    </section>
+
     <section class="lists">
         <div class="list-panel">
             <h3>Videos</h3>

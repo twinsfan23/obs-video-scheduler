@@ -56,6 +56,10 @@ class ContestUpdate(BaseModel):
     start_timestamp: Optional[int] = None
 
 
+class MediaUrlImport(BaseModel):
+    urls: List[str]
+
+
 class ObsLaunchRequest(BaseModel):
     path: str
     layer: int = 0

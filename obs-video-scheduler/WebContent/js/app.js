@@ -3,6 +3,13 @@ const timelineEl = document.getElementById('timeline');
 const itemPicker = document.getElementById('item-picker');
 const loadSelect = document.getElementById('load-file');
 const viewButtons = document.querySelectorAll('.view-buttons button');
+const importDropzone = document.getElementById('media-dropzone');
+const importFileInput = document.getElementById('media-file-input');
+const importUrlInput = document.getElementById('media-urls');
+const importUrlButton = document.getElementById('import-urls');
+const scanLibraryButton = document.getElementById('scan-library');
+const importSummary = document.getElementById('import-summary');
+const importResults = document.getElementById('import-results');
 
 let calendar;
 let scheduleData = [];
@@ -173,6 +180,72 @@ async function update_activity_list() {
   }
 }
 
+function renderImportItems(items, actionLabel) {
+  if (!items || !items.length) {
+    importSummary.textContent = 'No items were imported.';
+    importResults.innerHTML = '';
+    return;
+  }
+
+  importSummary.textContent = `${actionLabel} ${items.length} item${items.length === 1 ? '' : 's'}.`;
+  importResults.innerHTML = '';
+
+  items.forEach((item) => {
+    const li = document.createElement('li');
+    const minutes = Math.round((item.duration || 0) / 60000);
+    li.textContent = `${item.name} (${minutes} min)`;
+    importResults.appendChild(li);
+  });
+}
+
+async function importFilesFromDrop(files) {
+  if (!files || !files.length) return;
+  importSummary.textContent = 'Uploading and indexing...';
+  const formData = new FormData();
+  Array.from(files).forEach((file) => formData.append('files', file));
+  try {
+    const items = await jsonFetch('/media/import/files', { method: 'POST', body: formData });
+    renderImportItems(items, 'Imported');
+    refreshItemsForPicker();
+  } catch (err) {
+    importSummary.textContent = 'Upload failed. Check the backend logs.';
+    console.error(err);
+  }
+}
+
+async function importUrls() {
+  const urls = (importUrlInput.value || '')
+    .split(/\n+/)
+    .map((u) => u.trim())
+    .filter(Boolean);
+  if (!urls.length) return;
+  importSummary.textContent = 'Registering URLs...';
+  try {
+    const items = await jsonFetch('/media/import/urls', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ urls }),
+    });
+    renderImportItems(items, 'Registered');
+    refreshItemsForPicker();
+  } catch (err) {
+    importSummary.textContent = 'URL import failed.';
+    console.error(err);
+  }
+}
+
+async function rescanMediaLibrary() {
+  importSummary.textContent = 'Scanning media directory...';
+  try {
+    const items = await jsonFetch('/media/scan', { method: 'POST' });
+    renderImportItems(items, 'Indexed');
+    refreshItemsForPicker();
+  } catch (err) {
+    importSummary.textContent = 'Scan failed.';
+    console.error(err);
+  }
+}
+
 async function refreshItemsForPicker() {
   try {
     const videos = await jsonFetch('/VideoList?type=video&format=json');
@@ -329,9 +402,43 @@ function wireControls() {
   });
 }
 
+function wireImportControls() {
+  if (importDropzone) {
+    ['dragenter', 'dragover'].forEach((evt) => {
+      importDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        importDropzone.classList.add('active');
+      });
+    });
+    ['dragleave', 'drop'].forEach((evt) => {
+      importDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        importDropzone.classList.remove('active');
+      });
+    });
+    importDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      importFilesFromDrop(e.dataTransfer.files);
+    });
+  }
+
+  if (importFileInput) {
+    importFileInput.addEventListener('change', (e) => importFilesFromDrop(e.target.files));
+  }
+
+  if (importUrlButton) {
+    importUrlButton.addEventListener('click', importUrls);
+  }
+
+  if (scanLibraryButton) {
+    scanLibraryButton.addEventListener('click', rescanMediaLibrary);
+  }
+}
+
 function bootstrap() {
   initCalendar();
   wireControls();
+  wireImportControls();
 
   update_schedule();
   update_status('/CurrentState', 'current-state');

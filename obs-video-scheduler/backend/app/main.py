@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session, joinedload
 
-from . import models, obs
+from . import media, models, obs
 from .config import get_settings
 from .database import Base, engine, get_db
 from .legacy import bootstrap_from_legacy
@@ -17,6 +17,7 @@ from .schemas import (
     ObsLaunchRequest,
     ObsMuteRequest,
     ObsSourceRequest,
+    MediaUrlImport,
     ScheduleEntryCreate,
     ScheduleEntryRead,
     SchedulePayload,
@@ -83,6 +84,25 @@ def delete_item(item_id: str, db: Session = Depends(get_db)):
     db.delete(item)
     db.commit()
     return None
+
+
+@app.post("/media/scan", response_model=List[ItemRead])
+def scan_media(db: Session = Depends(get_db), settings=Depends(get_settings)):
+    return media.scan_media_library(settings, db)
+
+
+@app.post("/media/import/files", response_model=List[ItemRead], status_code=status.HTTP_201_CREATED)
+def import_media_files(
+    files: List[UploadFile] = File(...), db: Session = Depends(get_db), settings=Depends(get_settings)
+):
+    if not files:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No files provided")
+    return media.persist_uploaded_files(files, settings, db)
+
+
+@app.post("/media/import/urls", response_model=List[ItemRead], status_code=status.HTTP_201_CREATED)
+def import_media_urls(payload: MediaUrlImport, db: Session = Depends(get_db)):
+    return media.persist_urls(payload.urls, db)
 
 
 @app.get("/schedule", response_model=SchedulePayload)
